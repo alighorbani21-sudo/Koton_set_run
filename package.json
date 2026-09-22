@@ -1,6 +1,6 @@
 {
   "name": "koton-set-run",
-  "version": "4.1.0",
+  "version": "4.1.1",
   "private": true,
   "description": "KOTON_SET RUN — mobile fashion endless runner with real KOTON products, dynamic KOTON_SET / KOTON_JEAN districts, and a global Top 20 leaderboard.",
   "main": "server.js",

@@ -1,25 +1,36 @@
-KOTON_SET RUN 4.1.0
+KOTON_SET RUN 4.1.1
 
-Files:
-- index.html — game frontend
-- server.js — dependency-free leaderboard/static server
-- package.json — Node start configuration
-- data/scores.json — leaderboard storage
-- assets/products/ — optional isolated transparent product PNG/WebP files
+Mobile-first HTML5 fashion endless runner.
 
-Run:
-1. npm start
-2. Open http://localhost:3000
+Run locally:
+  npm start
+Then open:
+  http://localhost:3000
 
-For real product sprites, place:
-hello-kitty-jacket.png
-floral-denim-pants.png
-hoodie-fur-pocket.png
-cropped-pu-puffer.png
-road-way-jacket.png
-inside assets/products/.
+Deployment:
+  Node.js Web Service
+  Build command: npm install
+  Start command: npm start
 
-The frontend is configured to use the same-origin API paths:
-POST /api/scores
-GET  /api/leaderboard
-GET  /api/leaderboard/rank
+Product assets:
+  assets/products/hello-kitty-jacket.png
+  assets/products/floral-denim-pants.png
+  assets/products/hoodie-fur-pocket.png
+  assets/products/cropped-pu-puffer.png
+  assets/products/road-way-jacket.png
+
+Leaderboard:
+  POST /api/scores
+  GET  /api/leaderboard?limit=20&playerId=...
+  GET  /api/leaderboard/rank?playerId=...
+  GET  /api/health
+  GET  /healthz
+
+4.1.1 changes:
+  - One leaderboard entry per persistent playerId.
+  - A new result replaces the player's previous result only when it ranks better.
+  - Existing duplicate records are normalized on server startup.
+  - Product image assets are included in assets/products/.
+
+Telegram CTA remains:
+  https://t.me/koton_set

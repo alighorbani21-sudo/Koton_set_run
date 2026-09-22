@@ -20,6 +20,8 @@ function loadScores() {
   } catch (_) { return []; }
 }
 let scores = loadScores();
+normalizeScores();
+saveScores();
 
 function cleanName(v) {
   return String(v ?? "").normalize("NFC")
@@ -35,6 +37,20 @@ function rankSort(a, b) {
          (b.kotonPoints - a.kotonPoints) ||
          (a.timestamp - b.timestamp);
 }
+function bestPerPlayer(rows) {
+  const byPlayer = new Map();
+  for (const row of rows) {
+    if (!row || !row.playerId) continue;
+    const prev = byPlayer.get(row.playerId);
+    if (!prev || rankSort(row, prev) < 0) byPlayer.set(row.playerId, row);
+  }
+  return [...byPlayer.values()];
+}
+
+function normalizeScores() {
+  scores = bestPerPlayer(scores).sort(rankSort).slice(0, MAX_RECORDS);
+}
+
 function rankOf(playerId) {
   const i = scores.slice().sort(rankSort).findIndex(x => x.playerId === playerId);
   return i < 0 ? null : i + 1;
@@ -107,11 +123,20 @@ const server = http.createServer(async (req, res) => {
         ? Number(b.timestamp) : now;
 
       const rec = { playerId, displayName, distance, kotonPoints, productsCollected, timestamp };
-      scores.push(rec);
-      saveScores();
+      const previous = scores.find(x => x.playerId === playerId) || null;
 
+      // Keep exactly one leaderboard record per player. Replace it only when
+      // the new result is better by the public ranking rules.
+      if (!previous || rankSort(rec, previous) < 0) {
+        scores = scores.filter(x => x.playerId !== playerId);
+        scores.push(rec);
+        normalizeScores();
+        saveScores();
+      }
+
+      const best = scores.find(x => x.playerId === playerId) || null;
       const rank = rankOf(playerId);
-      return send(res, 200, { ok:true, rank, top:topRows(20), me: rank ? {...rec, rank} : null });
+      return send(res, 200, { ok:true, rank, top:topRows(20), me: rank ? {...best, rank} : null });
     }
 
     if (req.method === "GET" && u.pathname === "/api/leaderboard") {
